@@ -1,4 +1,4 @@
 # Fund_TpFinal
 
-CODIGO EXPLICADO EN 
+CODIGO DEL JUEGO DE LA VIDA EXPLICADO EN 
 https://www.youtube.com/watch?v=KFlcpZf5Evg
