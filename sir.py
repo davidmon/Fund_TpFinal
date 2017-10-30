@@ -8,10 +8,12 @@ import scipy
 from scipy import stats
 
 
-iteraciones = 10
-cantInfectados = 5
-
-
+iteraciones = 100
+cantInfectados = 1
+cantidadS = 0
+cantidadI = 0
+cantidadR = 0
+cantidadM = 0
 coefEnferma  = 0.34 #enferma
 coefRecupera = 0.6 #cura
 
@@ -142,9 +144,16 @@ coorRY = coorMY0+defasajeY*3
 etiquetaR = g.Text(g.Point(coorRX, coorRY), 'R: -')
 etiquetaR.setSize(10)
 
+# cantidad M
+coorMX = coorMX0
+coorMY = coorMY0+defasajeY*4
+etiquetaM = g.Text(g.Point(coorMX, coorMY), 'M: -')
+etiquetaM.setSize(10)
+
+
 # grupo grafica
 coorGX0 = espacioY
-coorGY0 = espacioY+tamHeaderY+coorRY
+coorGY0 = espacioY+tamHeaderY+coorMY
 grafica = g.Rectangle(g.Point(coorGX0,coorGY0),g.Point(coorGX0+anchoI,coorGY0+altoI))
 grafica.setFill('white')
 grafica.setOutline(colorFondo)
@@ -162,7 +171,7 @@ ejeX.draw(win)
 anchoBoton = 120 
 altoBoton = 25
 coorBX0 = coorMX0 - anchoBoton/2
-coorBY0 = 500
+coorBY0 = 510
 botonIniciar = g.Rectangle(g.Point(coorBX0,coorBY0), g.Point(coorBX0+anchoBoton,coorBY0+altoBoton))
 botonIniciar.setFill('white')
 botonIniciar.setOutline(colorGreenR)
@@ -242,52 +251,46 @@ etiquetaIteracion.draw(win)
 etiquetaS.draw(win)
 etiquetaI.draw(win)
 etiquetaR.draw(win)
-
+etiquetaM.draw(win)
 
 infeccion = stats.rv_discrete(name="probabilidadInfectarse", values=([0,1],[coefEnferma,1-coefEnferma]))
-
 recuperacion = stats.rv_discrete(name="probabilidadRecuperarse", values=([2,3],[coefRecupera,1-coefRecupera]))
 
-
 while iteraciones > tic:
-
+    cantidadS = len(blocks)
     for index in range(0, len(blocks)):
-
         #reglas
         if blocks[index][1] == "suceptible":
             for x in blocks[index][5]:
-                #cuenta infectadas
                 if blocks[x][1] == "infectada":
                     blocks[index][2] += 1
-            
-            #calcula si se infecta
             if blocks[index][2] >= 1:
-                #falta mucho vecinos
-                if infeccion.rvs() == 0:    
-                    blocks[index][3] = "infectada"
-                else:
-                    blocks[index][3] = "suceptible"
-        
-        blocks[index][2] = 0     
-        
-        
-        if blocks[index][1] == "infectada":
 
-            if blocks[index][4] != 2: # definir variable 10
+
+                #falta mucho vecinos
                 
 
+                if infeccion.rvs() == 0:    
+                    blocks[index][3] = "infectada"
+                    cantidadS -= 1
+                    cantidadI += 1 
+                #else:
+                #    blocks[index][3] = "suceptible"
 
-                blocks[index][4] += 1 #decremento tiempo de infeccion del tipo
+        blocks[index][2] = 0     
+        if blocks[index][1] == "infectada":
+            if blocks[index][4] != 2: # definir variable 10
+                blocks[index][4] += 1 
                 if recuperacion.rvs() == 2:
                     blocks[index][3] = "recuperada"
-                else:
-                    blocks[index][3] = "infectada"
+                    cantidadR += 1
+                    cantidadI -= 1
+                #else:
+                #    blocks[index][3] = "infectada"
             else:
                 blocks[index][3] = "muerta"
-
-    
-    
-
+                cantidadM += 1
+                cantidadI -= 1
     # ahora dibuja
     for index in range(0, len(blocks)):
         blocks[index][2] = 0
@@ -303,12 +306,12 @@ while iteraciones > tic:
         if blocks[index][3] == "recuperada":
             blocks[index][1] = "recuperada"
             blocks[index][0].setFill(colorGreenR)    
-    
     tic += 1
     etiquetaIteracion.setText('Iteracion: '+ str(tic))
-    #etiquetaS.setText('S: '+ str(cantidadS))
-    #etiquetaI.setText('I: '+ str(cantidadI))
-    #etiquetaR.setText('R: '+ str(cantidadR))
+    etiquetaS.setText('S: '+ str(cantidadS))
+    etiquetaI.setText('I: '+ str(cantidadI))
+    etiquetaR.setText('R: '+ str(cantidadR))
+    etiquetaM.setText('M: '+ str(cantidadM))
     time.sleep(0.5)
 
 time.sleep(1)
@@ -333,8 +336,3 @@ while salir > 0:
             botonIniciar.setFill(colorRedI)
             etiquetaBoton.setFill('white')
             win.close()
-
-
-
-
-
