@@ -15,7 +15,7 @@ cantidadI = 0
 cantidadR = 0
 cantidadM = 0
 coefEnferma  = 0.34 #enferma
-coefRecupera = 0.6 #cura
+coefRecupera = 0.0 #cura
 
 #------------------------------------------------------------------------------------------------
 # configuracion ventana
@@ -192,7 +192,6 @@ blocks = []
 vecinosI = 0
 duracionInfeccion = 0
 scale = round(anchoAltoS/cantFilasColumnas)
-
 for x in range(scale, anchoAltoS +1, scale):
     for y in range(scale, anchoAltoS +1, scale):
         point1 = g.Point(x + coorSI0, y + coorSY0)
@@ -227,7 +226,6 @@ while iniciar > 0:
             etiquetaBoton.setFill('white')
             message.setTextColor(colorGreenR)
             message.setText('Seleccionar Infectados')
-
 while cantInfectados > 0:
     mouse = win.getMouse()
     mouse_x = mouse.getX()
@@ -241,10 +239,8 @@ while cantInfectados > 0:
                 blocks[index][0].setFill(colorRedI)
                 blocks[index][1] = "infectada"
                 cantInfectados -= 1
-
 # anexa las celdas vecinas a cada bloque
 t.indexing(blocks, cantFilasColumnas)
-
 message.setTextColor(colorGreenR)
 message.setText('Simulación en Proceso')
 etiquetaIteracion.draw(win)
@@ -252,12 +248,12 @@ etiquetaS.draw(win)
 etiquetaI.draw(win)
 etiquetaR.draw(win)
 etiquetaM.draw(win)
-
+cantidadS = len(blocks)
+cantidadI = int(inputCantMaxInfectados.getText())
+cantidadS -= cantidadI 
 infeccion = stats.rv_discrete(name="probabilidadInfectarse", values=([0,1],[coefEnferma,1-coefEnferma]))
 recuperacion = stats.rv_discrete(name="probabilidadRecuperarse", values=([2,3],[coefRecupera,1-coefRecupera]))
-
-while iteraciones > tic:
-    cantidadS = len(blocks)
+while iteraciones > tic and cantidadI > 0:
     for index in range(0, len(blocks)):
         #reglas
         if blocks[index][1] == "suceptible":
@@ -265,33 +261,28 @@ while iteraciones > tic:
                 if blocks[x][1] == "infectada":
                     blocks[index][2] += 1
             if blocks[index][2] >= 1:
-
-
-                #falta mucho vecinos
-                
-
+                                                                        #falta mucho vecinos
                 if infeccion.rvs() == 0:    
                     blocks[index][3] = "infectada"
                     cantidadS -= 1
                     cantidadI += 1 
-                #else:
-                #    blocks[index][3] = "suceptible"
-
-        blocks[index][2] = 0     
+                else:
+                    blocks[index][3] = "suceptible"
+        blocks[index][2] = 0
         if blocks[index][1] == "infectada":
-            if blocks[index][4] != 2: # definir variable 10
+            if blocks[index][4] <= 2: # definir variable 10
                 blocks[index][4] += 1 
                 if recuperacion.rvs() == 2:
                     blocks[index][3] = "recuperada"
                     cantidadR += 1
                     cantidadI -= 1
-                #else:
-                #    blocks[index][3] = "infectada"
+                else:
+                    blocks[index][3] = "infectada"
             else:
                 blocks[index][3] = "muerta"
                 cantidadM += 1
                 cantidadI -= 1
-    # ahora dibuja
+    # ahora dibuja y actualiza estados
     for index in range(0, len(blocks)):
         blocks[index][2] = 0
         if blocks[index][3] == "suceptible":
@@ -312,8 +303,6 @@ while iteraciones > tic:
     etiquetaI.setText('I: '+ str(cantidadI))
     etiquetaR.setText('R: '+ str(cantidadR))
     etiquetaM.setText('M: '+ str(cantidadM))
-    time.sleep(0.5)
-
 time.sleep(1)
 message.setTextColor(colorRedI)
 message.setText('Simulación Finalizada - Salir')
@@ -321,7 +310,6 @@ botonIniciar.setFill('white')
 botonIniciar.setOutline(colorRedI)
 etiquetaBoton.setFill(colorRedI)
 etiquetaBoton.setText('SALIR')
-
 salir = 1
 while salir > 0:
     clicMouse = win.getMouse()
