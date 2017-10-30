@@ -4,11 +4,16 @@ import graphics as g
 import random
 import tablero as t
 import time
+import scipy
+from scipy import stats
+
 
 iteraciones = 10
 cantInfectados = 5
-coefAlfa = 0.03
-coefBeta = 0.67
+
+
+coefEnferma  = 0.34 #enferma
+coefRecupera = 0.6 #cura
 
 #------------------------------------------------------------------------------------------------
 # configuracion ventana
@@ -22,6 +27,7 @@ colorFondo = g.color_rgb(234, 236, 238)
 colorBlueS = g.color_rgb(20, 34, 238)
 colorRedI = g.color_rgb(255, 0, 0)
 colorGreenR = g.color_rgb( 34, 153, 84)
+colorWhiteM = g.color_rgb( 255, 255, 255)
 colorLineas = g.color_rgb(46, 64, 83)
 
 # dibuja tablero
@@ -79,12 +85,12 @@ inputBoxAlfa = g.Entry(g.Point(coorPIX1,coorPIY1), anchoInput)
 inputBoxAlfa.setFill(colorInput)
 inputBoxAlfa.setSize(11)
 inputBoxAlfa.draw(win)
-inputBoxAlfa.setText(coefAlfa)
+inputBoxAlfa.setText(coefEnferma)
 inputBoxBeta = g.Entry(g.Point(coorPIX1,coorPIY1+espacioYI), anchoInput)
 inputBoxBeta.setFill(colorInput)
 inputBoxBeta.setSize(11)
 inputBoxBeta.draw(win)
-inputBoxBeta.setText(coefBeta)
+inputBoxBeta.setText(coefRecupera)
 inputCantMaxInfectados = g.Entry(g.Point(coorPIX2,coorPIY1), anchoInput)
 inputCantMaxInfectados.setFill(colorInput)
 inputCantMaxInfectados.setSize(11)
@@ -174,7 +180,8 @@ etiquetaBoton.draw(win)
 cantFilasColumnas = 50
 tic = 0
 blocks = []
-vecinosVivos = 0
+vecinosI = 0
+duracionInfeccion = 0
 scale = round(anchoAltoS/cantFilasColumnas)
 
 for x in range(scale, anchoAltoS +1, scale):
@@ -183,7 +190,7 @@ for x in range(scale, anchoAltoS +1, scale):
         point2 = g.Point(x + coorSI0 - scale, y + coorSY0 - scale)
         celda = g.Rectangle(point1, point2)
         celda.setFill(colorBlueS)
-        block = [celda, "dead", vecinosVivos, "die"]
+        block = [celda, "suceptible", vecinosI, "suceptible", duracionInfeccion]
         block[0].draw(win)
         blocks.append(block)
 
@@ -202,8 +209,8 @@ while iniciar > 0:
     if abs(centroBotonX - clicMouseX) < anchoBoton/2:
         if abs(centroBotonY - clicMouseY) < altoBoton/2:
             iniciar -= 1
-            coefAlfa = float(inputBoxAlfa.getText())
-            coefBeta = float(inputBoxBeta.getText())
+            coefEnferma = float(inputBoxAlfa.getText())
+            coefRecupera = float(inputBoxBeta.getText())
             cantInfectados = int(inputCantMaxInfectados.getText())
             iteraciones = int(inputCantIteraciones.getText())
             botonIniciar.setFill(colorGreenR)
@@ -223,7 +230,7 @@ while cantInfectados > 0:
         if abs(center_x - mouse_x) < scale/2:
             if abs(center_y - mouse_y) < scale/2:
                 blocks[index][0].setFill(colorRedI)
-                blocks[index][1] = "alive"
+                blocks[index][1] = "infectada"
                 cantInfectados -= 1
 
 # anexa las celdas vecinas a cada bloque
@@ -236,42 +243,67 @@ etiquetaS.draw(win)
 etiquetaI.draw(win)
 etiquetaR.draw(win)
 
+
+infeccion = stats.rv_discrete(name="probabilidadInfectarse", values=([0,1],[coefEnferma,1-coefEnferma]))
+
+recuperacion = stats.rv_discrete(name="probabilidadRecuperarse", values=([2,3],[coefRecupera,1-coefRecupera]))
+
+
 while iteraciones > tic:
-    # primero calcula segun las reglas
+
     for index in range(0, len(blocks)):
-        # cuenta los bloques vecinos vivos y lo setea en el bloque actual
-        for x in blocks[index][4]:
-            if blocks[x][1] == "alive":
-                blocks[index][2] += 1
-        # los bloques vivos
-        if blocks[index][1] == "alive":
-            # si tiene 2 o 3 vecinos vivos sigue viva 
-            if blocks[index][2] > 1 and blocks[index][2] < 4:
-                blocks[index][3] = "born"
-            # sino muere    
+
+        #reglas
+        if blocks[index][1] == "suceptible":
+            for x in blocks[index][5]:
+                #cuenta infectadas
+                if blocks[x][1] == "infectada":
+                    blocks[index][2] += 1
+            
+            #calcula si se infecta
+            if blocks[index][2] >= 1:
+                #falta mucho vecinos
+                if infeccion.rvs() == 0:    
+                    blocks[index][3] = "infectada"
+                else:
+                    blocks[index][3] = "suceptible"
+        
+        blocks[index][2] = 0     
+        
+        
+        if blocks[index][1] == "infectada":
+
+            if blocks[index][4] != 2: # definir variable 10
+                
+
+
+                blocks[index][4] += 1 #decremento tiempo de infeccion del tipo
+                if recuperacion.rvs() == 2:
+                    blocks[index][3] = "recuperada"
+                else:
+                    blocks[index][3] = "infectada"
             else:
-                blocks[index][3] = "die"
-        # los bloques muertos
-        elif blocks[index][1] == "dead":
-            # si tiene 3 vecinos vivos revive
-            if blocks[index][2] == 3:
-                blocks[index][3] = "born"
-            # sino sigue muerta
-            else:
-                blocks[index][3] = "die"
-        # y los deja en 0 vecinos vivos
-        blocks[index][2] = 0
+                blocks[index][3] = "muerta"
+
+    
+    
+
     # ahora dibuja
     for index in range(0, len(blocks)):
-        # deja en 0 vecinos vivos de nuevo
         blocks[index][2] = 0
-        if blocks[index][3] == "born":
-            blocks[index][1] = "alive"
-            blocks[index][0].setFill(colorRedI)
-        else:
-            blocks[index][1] = "dead"
+        if blocks[index][3] == "suceptible":
+            blocks[index][1] = "suceptible"
             blocks[index][0].setFill(colorBlueS)
-        blocks[index][3] = "die"
+        if blocks[index][3] == "infectada":
+            blocks[index][1] = "infectada"
+            blocks[index][0].setFill(colorRedI)
+        if blocks[index][3] == "muerta":
+            blocks[index][1] = "muerta"
+            blocks[index][0].setFill(colorWhiteM)    
+        if blocks[index][3] == "recuperada":
+            blocks[index][1] = "recuperada"
+            blocks[index][0].setFill(colorGreenR)    
+    
     tic += 1
     etiquetaIteracion.setText('Iteracion: '+ str(tic))
     #etiquetaS.setText('S: '+ str(cantidadS))
@@ -306,4 +338,3 @@ while salir > 0:
 
 
 
-#print(random())
