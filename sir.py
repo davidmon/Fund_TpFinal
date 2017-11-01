@@ -57,15 +57,17 @@ anchoInput = 18
 separacionInput = 55
 ptOInputBoxAlfa = g.Point(pto0LInput.getX(),pto0LInput.getY()+separacionInput)
 ptOInputBoxBeta = g.Point(pto0LInput.getX(),ptOInputBoxAlfa.getY()+separacionInput)
-ptOInputCantMaxInfectados = g.Point(pto0LInput.getX(),ptOInputBoxBeta.getY()+separacionInput)
-ptOInputCantIteraciones = g.Point(pto0LInput.getX(),ptOInputCantMaxInfectados.getY()+separacionInput)
+ptODurInfeccion = g.Point(pto0LInput.getX(),ptOInputBoxBeta.getY()+separacionInput)
+ptOInputCantIteraciones = g.Point(pto0LInput.getX(),ptODurInfeccion.getY()+separacionInput)
 ptOInputCantFilas = g.Point(pto0LInput.getX(),ptOInputCantIteraciones.getY()+separacionInput)
+ptOInputCantMaxInfectados = g.Point(pto0LInput.getX(),ptOInputCantFilas.getY()+separacionInput)
 defasajeLInput = 25
 ptOLInputBoxAlfa = g.Point(pto0LInput.getX(),ptOInputBoxAlfa.getY()-defasajeLInput)
 ptOLInputBoxBeta = g.Point(pto0LInput.getX(),ptOInputBoxBeta.getY()-defasajeLInput)
-ptOLInputCantMaxInfectados = g.Point(pto0LInput.getX(),ptOInputCantMaxInfectados.getY()-defasajeLInput)
+ptOLInputDiasInF = g.Point(pto0LInput.getX(),ptODurInfeccion.getY()-defasajeLInput)
 ptOLInputCantIteraciones = g.Point(pto0LInput.getX(),ptOInputCantIteraciones.getY()-defasajeLInput)
 ptOLInputCantFilas = g.Point(pto0LInput.getX(),ptOInputCantFilas.getY()-defasajeLInput)
+ptOLInputCantMaxInfectados = g.Point(pto0LInput.getX(),ptOInputCantMaxInfectados.getY()-defasajeLInput)
 pto0Notif = g.Point(pto0Input.getX()+anchoI+tab,pto0Input.getY())  
 altoN = altoI
 anchoN = anchoVentana - anchoI - tab*4 - altoI
@@ -154,6 +156,11 @@ inputCantFilas.setFill(colorInput)
 inputCantFilas.setSize(10)
 inputCantFilas.draw(win)
 inputCantFilas.setText(cantFilasColumnas)
+inputDuracionInfeccion = g.Entry(ptODurInfeccion, anchoInput)
+inputDuracionInfeccion.setFill(colorInput)
+inputDuracionInfeccion.setSize(10)
+inputDuracionInfeccion.draw(win)
+inputDuracionInfeccion.setText(cantDiasInfeccion)
 # label inputs
 etiquetaInputBoxAlfa = g.Text(ptOLInputBoxAlfa,'Coef Virulencia:')
 etiquetaInputBoxAlfa.setSize(10)
@@ -170,6 +177,9 @@ etiquetaInputBoxIteraciones.draw(win)
 etiquetaInputBoxFilas = g.Text(ptOLInputCantFilas,'Cant Filas:')
 etiquetaInputBoxFilas.setSize(10)
 etiquetaInputBoxFilas.draw(win)
+etiquetaInputBoxDInf = g.Text(ptOLInputDiasInF,'Duración Infección:')
+etiquetaInputBoxDInf.setSize(10)
+etiquetaInputBoxDInf.draw(win)
 # grupo notificacion
 grafica = g.Rectangle(pto0Notif,g.Point(pto0Notif.getX()+anchoN,pto0Notif.getY()+altoN))
 grafica.setFill(colorWhiteM)
@@ -253,7 +263,7 @@ simulacion.draw(win)
 
 
 #------------------------------------------------------------------------------------------------
-# bton aceptar
+# boton aceptar
 #------------------------------------------------------------------------------------------------
 
 iniciar = 1
@@ -272,6 +282,7 @@ while iniciar > 0:
             cantInfectados = int(inputCantMaxInfectados.getText())
             iteraciones = int(inputCantIteraciones.getText())
             cantFilasColumnas = int(inputCantFilas.getText())
+            cantDiasInfeccion = int(inputDuracionInfeccion.getText())
             botonIniciar.setFill(colorGreenBoton)
             etiquetaBoton.setText('INICIADA')
             etiquetaBoton.setFill('white')
@@ -281,7 +292,7 @@ while iniciar > 0:
 #------------------------------------------------------------------------------------------------
 # configuracion simulacion
 #------------------------------------------------------------------------------------------------
-
+esc = round(anchoS/cantFilasColumnas)
 for x in range(esc, anchoS +1, esc):
     for y in range(esc, anchoS +1, esc):
         point1 = g.Point(x+pto0Sim.getX(), y+pto0Sim.getY())
@@ -313,6 +324,7 @@ while cantInfectados > 0:
                 cantInfectados -= 1
 # anexa las celdas vecinas a cada bloque
 t.indexing(blocks, cantFilasColumnas)
+time.sleep(0.5)
 message.setTextColor(colorGreenBoton)
 message.setText('Simulación en Proceso')
 etiquetaIteracion.draw(win)
@@ -329,6 +341,8 @@ cantidadI = int(inputCantMaxInfectados.getText())
 cantidadS -= cantidadI 
 infeccion = stats.rv_discrete(name="probabilidadInfectarse", values=([0,1],[coefVirulencia,1-coefVirulencia]))
 recuperacion = stats.rv_discrete(name="probabilidadRecuperarse", values=([2,3],[coefRecuperacion,1-coefRecuperacion]))
+altoejeX = abs(pto0EjeYG1.getY() - pto1EjeYG1.getY())
+escalaGrafica1Y = altoejeX/(cantFilasColumnas*cantFilasColumnas)
 while iteraciones > tic and cantidadI > 0:
     for index in range(0, len(blocks)):
         #reglas
@@ -384,55 +398,33 @@ while iteraciones > tic and cantidadI > 0:
     etiquetaR.setText('Recuperados: '+ str(cantidadR))
     etiquetaM.setText('Muertos: '+ str(cantidadM))
 
-
-
-escalaGrafica1X = round(abs(pto0EjeXG1.getX() - pto1EjeXG1.getX() + tab*2)/tic)
-
-                                                                             #sacar fuera del while
-altoejeX = abs(pto0EjeYG1.getY() - pto1EjeYG1.getY())
-escalaGrafica1Y = altoejeX/(cantFilasColumnas*cantFilasColumnas) 
-
-                                                                            
-                                       
+escalaGrafica1X = round(abs(pto0EjeXG1.getX() - pto1EjeXG1.getX() + tab*2)/tic)                                       
 for p in range (0,len(valoresGrafica)):
-    
-
     punto = g.Point(pto0EjeXG1.getX()+(valoresGrafica[p][0]*escalaGrafica1X),(pto1EjeYG1.getY()-valoresGrafica[p][1]*escalaGrafica1Y)-4)
     circuloS = g.Circle(punto,3)
     circuloS.setOutline(colorBlueS)
     circuloS.setFill(colorBlueS)
     circuloS.draw(win)
-    
     puntoR = g.Point(pto0EjeXG1.getX()+(valoresGrafica[p][0]*escalaGrafica1X),(pto1EjeYG1.getY()-valoresGrafica[p][3]*escalaGrafica1Y)-4)
     circuloR = g.Circle(puntoR,3)
     circuloR.setOutline(colorGreenR)
     circuloR.setFill(colorGreenR)
     circuloR.draw(win)
-
     puntoM = g.Point(pto0EjeXG1.getX()+(valoresGrafica[p][0]*escalaGrafica1X),(pto1EjeYG1.getY()-valoresGrafica[p][4]*escalaGrafica1Y)-4)
     circuloM = g.Circle(puntoM,3)
     circuloM.setOutline('black')
     circuloM.setFill(colorWhiteM)
     circuloM.draw(win)
-    
     puntoI = g.Point(pto0EjeXG2.getX()+(valoresGrafica[p][0]*escalaGrafica1X),(pto1EjeYG2.getY()-valoresGrafica[p][2]*escalaGrafica1Y)-4)
     circuloI = g.Circle(puntoI,3)
     circuloI.setOutline(colorRedI)
     circuloI.setFill(colorRedI)
     circuloI.draw(win)
 
-    
-
-
-
-
-
-
-
 #------------------------------------------------------------------------------------------------
 # boton salir
 #------------------------------------------------------------------------------------------------
-time.sleep(0.5)
+time.sleep(1)
 message.setTextColor(colorRedI)
 message.setText('Simulación Finalizada - Salir')
 botonIniciar.setFill(colorWhiteM)
