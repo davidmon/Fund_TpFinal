@@ -337,7 +337,7 @@ cantidadS -= cantidadI
 infeccion = stats.rv_discrete(name="probabilidadInfectarse", values=([0,1],[coefVirulencia,1-coefVirulencia]))
 recuperacion = stats.rv_discrete(name="probabilidadRecuperarse", values=([2,3],[coefRecuperacion,1-coefRecuperacion]))
 altoejeY = abs(pto0EjeYG1.getY() - pto1EjeYG1.getY())
-escGraf1Y = (altoejeY/(cantFilasColumnas*cantFilasColumnas))
+escGraf1Y = ((altoejeY- tab*2)/(cantFilasColumnas*cantFilasColumnas))
 escGraf2Y = (altoejeY/(cantFilasColumnas*cantFilasColumnas))
 escGraf1X = round(abs(pto0EjeXG1.getX() - pto1EjeXG1.getX() + tab*2)/(iteraciones))
 
