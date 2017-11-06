@@ -8,7 +8,7 @@ import scipy
 from scipy import stats
 
 
-iteraciones = 70
+iteraciones = 40
 cantInfectados = 5
 cantidadS = 0
 cantidadI = 0
@@ -22,7 +22,7 @@ blocks = []
 vecinosI = 0
 cantDiasInfectado = 0
 cantDiasInfeccion = 3
-valoresGrafica = []
+valGraf = []
 
 
 #------------------------------------------------------------------------------------------------
@@ -32,7 +32,6 @@ valoresGrafica = []
 # colores
 colorInput = g.color_rgb(240, 243, 244)
 colorHeader = g.color_rgb(46, 64, 83)
-#colorFondo = g.color_rgb(234, 236, 238)
 colorFondo = g.color_rgb(192,192,192)
 colorBlueS = g.color_rgb(20, 34, 238)
 colorRedI = g.color_rgb(255, 0, 0)
@@ -40,7 +39,6 @@ colorGreenR = g.color_rgb( 0, 255, 0)
 colorWhiteM = g.color_rgb( 255, 255, 255)
 colorLineas = g.color_rgb(46, 64, 83)
 colorGreenBoton = g.color_rgb( 34, 153, 84)
-#colorGrayGraficas = g.color_rgb(192,192,192)
 colorGrayGraficas = g.color_rgb(253, 254, 254)
 # conf medidas
 tab = 10
@@ -141,11 +139,11 @@ inputBoxBeta.setFill(colorInput)
 inputBoxBeta.setSize(10)
 inputBoxBeta.draw(win)
 inputBoxBeta.setText(coefRecuperacion)
-inputCantMaxInfectados = g.Entry(ptOInputCantMaxInfectados, anchoInput)
-inputCantMaxInfectados.setFill(colorInput)
-inputCantMaxInfectados.setSize(10)
-inputCantMaxInfectados.draw(win)
-inputCantMaxInfectados.setText(cantInfectados)
+inputDuracionInfeccion = g.Entry(ptODurInfeccion, anchoInput)
+inputDuracionInfeccion.setFill(colorInput)
+inputDuracionInfeccion.setSize(10)
+inputDuracionInfeccion.draw(win)
+inputDuracionInfeccion.setText(cantDiasInfeccion)
 inputCantIteraciones = g.Entry(ptOInputCantIteraciones, anchoInput)
 inputCantIteraciones.setFill(colorInput)
 inputCantIteraciones.setSize(10)
@@ -156,11 +154,11 @@ inputCantFilas.setFill(colorInput)
 inputCantFilas.setSize(10)
 inputCantFilas.draw(win)
 inputCantFilas.setText(cantFilasColumnas)
-inputDuracionInfeccion = g.Entry(ptODurInfeccion, anchoInput)
-inputDuracionInfeccion.setFill(colorInput)
-inputDuracionInfeccion.setSize(10)
-inputDuracionInfeccion.draw(win)
-inputDuracionInfeccion.setText(cantDiasInfeccion)
+inputCantMaxInfectados = g.Entry(ptOInputCantMaxInfectados, anchoInput)
+inputCantMaxInfectados.setFill(colorInput)
+inputCantMaxInfectados.setSize(10)
+inputCantMaxInfectados.draw(win)
+inputCantMaxInfectados.setText(cantInfectados)
 # label inputs
 etiquetaInputBoxAlfa = g.Text(ptOLInputBoxAlfa,'Coef Virulencia:')
 etiquetaInputBoxAlfa.setSize(10)
@@ -168,18 +166,18 @@ etiquetaInputBoxAlfa.draw(win)
 etiquetaInputBoxBeta = g.Text(ptOLInputBoxBeta,'Coef Recuperación:')
 etiquetaInputBoxBeta.setSize(10)
 etiquetaInputBoxBeta.draw(win)
-etiquetaInputBoxInfectados = g.Text(ptOLInputCantMaxInfectados,'Cant Infectados:')
-etiquetaInputBoxInfectados.setSize(10)
-etiquetaInputBoxInfectados.draw(win)
+etiquetaInputBoxDInf = g.Text(ptOLInputDiasInF,'Duración Infección:')
+etiquetaInputBoxDInf.setSize(10)
+etiquetaInputBoxDInf.draw(win)
 etiquetaInputBoxIteraciones = g.Text(ptOLInputCantIteraciones,'Cant Iteraciones:')
 etiquetaInputBoxIteraciones.setSize(10)
 etiquetaInputBoxIteraciones.draw(win)
 etiquetaInputBoxFilas = g.Text(ptOLInputCantFilas,'Cant Filas:')
 etiquetaInputBoxFilas.setSize(10)
 etiquetaInputBoxFilas.draw(win)
-etiquetaInputBoxDInf = g.Text(ptOLInputDiasInF,'Duración Infección:')
-etiquetaInputBoxDInf.setSize(10)
-etiquetaInputBoxDInf.draw(win)
+etiquetaInputBoxInfectados = g.Text(ptOLInputCantMaxInfectados,'Cant Infectados:')
+etiquetaInputBoxInfectados.setSize(10)
+etiquetaInputBoxInfectados.draw(win)
 # grupo notificacion
 grafica = g.Rectangle(pto0Notif,g.Point(pto0Notif.getX()+anchoN,pto0Notif.getY()+altoN))
 grafica.setFill(colorWhiteM)
@@ -202,34 +200,43 @@ message.draw(win)
 # iteraciones
 etiquetaIteracion = g.Text(pto0NotifIt,'Iteracion n°: -')
 etiquetaIteracion.setSize(10)
+etiquetaIteracion.draw(win)
 # cantidad S
 etiquetaS = g.Text(pto0NotifS,'Susceptibles: -')
 etiquetaS.setSize(10)
+etiquetaS.draw(win)
 # cantidad I
 etiquetaI = g.Text(pto0NotifI, 'Infectados: -')
 etiquetaI.setSize(10)
+etiquetaI.draw(win)
 # cantidad R
 etiquetaR = g.Text(pto0NotifR, 'Recuperados: -')
 etiquetaR.setSize(10)
+etiquetaR.draw(win)
 # cantidad M
 etiquetaM = g.Text(pto0NotifM, 'Muertos: -')
 etiquetaM.setSize(10)
+etiquetaM.draw(win)
 # id cantidad S
 cuadroS = g.Rectangle(pto0CuadroS,pto1CuadroS)
 cuadroS.setFill(colorBlueS)
 cuadroS.setOutline(colorBlueS)
+cuadroS.draw(win)
 # id cantidad I
 cuadroI = g.Rectangle(pto0CuadroI,pto1CuadroI)
 cuadroI.setFill(colorRedI)
 cuadroI.setOutline(colorRedI)
+cuadroI.draw(win)
 # cantidad R
 cuadroR = g.Rectangle(pto0CuadroR,pto1CuadroR)
 cuadroR.setFill(colorGreenR)
 cuadroR.setOutline(colorGreenR)
+cuadroR.draw(win)
 # cantidad M
 cuadroM = g.Rectangle(pto0CuadroM,pto1CuadroM)
 cuadroM.setFill(colorWhiteM)
 cuadroM.setOutline('black')
+cuadroM.draw(win)
 # grupo grafica
 grafica1 = g.Rectangle(pto0Graf1,pto1Graf1)
 grafica1.setFill(colorGrayGraficas)
@@ -261,11 +268,9 @@ simulacion.setFill(colorBlueS)
 simulacion.setOutline(colorBlueS)
 simulacion.draw(win)
 
-
 #------------------------------------------------------------------------------------------------
 # boton aceptar
 #------------------------------------------------------------------------------------------------
-
 iniciar = 1
 centroBoton = botonIniciar.getCenter()
 centroBotonX = centroBoton.getX()
@@ -308,7 +313,6 @@ simulacion.setOutline(colorFondo)
 #------------------------------------------------------------------------------------------------
 # simulacion
 #------------------------------------------------------------------------------------------------
-
 while cantInfectados > 0:
     mouse = win.getMouse()
     mouse_x = mouse.getX()
@@ -327,22 +331,16 @@ t.indexing(blocks, cantFilasColumnas)
 time.sleep(0.5)
 message.setTextColor(colorGreenBoton)
 message.setText('Simulación en Proceso')
-etiquetaIteracion.draw(win)
-cuadroS.draw(win)
-cuadroI.draw(win)
-cuadroR.draw(win)
-cuadroM.draw(win)
-etiquetaS.draw(win)
-etiquetaI.draw(win)
-etiquetaR.draw(win)
-etiquetaM.draw(win)
 cantidadS = len(blocks)
 cantidadI = int(inputCantMaxInfectados.getText())
 cantidadS -= cantidadI 
 infeccion = stats.rv_discrete(name="probabilidadInfectarse", values=([0,1],[coefVirulencia,1-coefVirulencia]))
 recuperacion = stats.rv_discrete(name="probabilidadRecuperarse", values=([2,3],[coefRecuperacion,1-coefRecuperacion]))
-altoejeX = abs(pto0EjeYG1.getY() - pto1EjeYG1.getY())
-escalaGrafica1Y = altoejeX/(cantFilasColumnas*cantFilasColumnas)
+altoejeY = abs(pto0EjeYG1.getY() - pto1EjeYG1.getY())
+escGraf1Y = (altoejeY/(cantFilasColumnas*cantFilasColumnas))
+escGraf2Y = (altoejeY/(cantFilasColumnas*cantFilasColumnas))
+escGraf1X = round(abs(pto0EjeXG1.getX() - pto1EjeXG1.getX() + tab*2)/(iteraciones))
+
 while iteraciones > tic and cantidadI > 0:
     for index in range(0, len(blocks)):
         #reglas
@@ -390,32 +388,29 @@ while iteraciones > tic and cantidadI > 0:
             blocks[index][0].setFill(colorGreenR)    
     tic += 1
     valores = [tic,cantidadS,cantidadI,cantidadR,cantidadM]
-    valoresGrafica.append(valores)
+    valGraf.append(valores)
     # actualiza notificaciones
     etiquetaIteracion.setText('Iteracion n°: '+ str(tic))
     etiquetaS.setText('Susceptibles: '+ str(cantidadS))
     etiquetaI.setText('Infectados: '+ str(cantidadI))
     etiquetaR.setText('Recuperados: '+ str(cantidadR))
     etiquetaM.setText('Muertos: '+ str(cantidadM))
-
-escalaGrafica1X = round(abs(pto0EjeXG1.getX() - pto1EjeXG1.getX() + tab*2)/tic)                                       
-for p in range (0,len(valoresGrafica)):
-    punto = g.Point(pto0EjeXG1.getX()+(valoresGrafica[p][0]*escalaGrafica1X),(pto1EjeYG1.getY()-valoresGrafica[p][1]*escalaGrafica1Y)-4)
-    circuloS = g.Circle(punto,3)
+    puntoS = g.Point(pto0EjeXG1.getX()+(tic*escGraf1X),(pto1EjeYG1.getY()-cantidadS*escGraf1Y))
+    circuloS = g.Circle(puntoS,3)
     circuloS.setOutline(colorBlueS)
     circuloS.setFill(colorBlueS)
     circuloS.draw(win)
-    puntoR = g.Point(pto0EjeXG1.getX()+(valoresGrafica[p][0]*escalaGrafica1X),(pto1EjeYG1.getY()-valoresGrafica[p][3]*escalaGrafica1Y)-4)
+    puntoR = g.Point(pto0EjeXG1.getX()+(tic*escGraf1X),(pto1EjeYG1.getY()-cantidadR*escGraf1Y))
     circuloR = g.Circle(puntoR,3)
     circuloR.setOutline(colorGreenR)
     circuloR.setFill(colorGreenR)
     circuloR.draw(win)
-    puntoM = g.Point(pto0EjeXG1.getX()+(valoresGrafica[p][0]*escalaGrafica1X),(pto1EjeYG1.getY()-valoresGrafica[p][4]*escalaGrafica1Y)-4)
+    puntoM = g.Point(pto0EjeXG1.getX()+(tic*escGraf1X),(pto1EjeYG1.getY()-cantidadM*escGraf1Y))
     circuloM = g.Circle(puntoM,3)
     circuloM.setOutline('black')
     circuloM.setFill(colorWhiteM)
     circuloM.draw(win)
-    puntoI = g.Point(pto0EjeXG2.getX()+(valoresGrafica[p][0]*escalaGrafica1X),(pto1EjeYG2.getY()-valoresGrafica[p][2]*escalaGrafica1Y)-4)
+    puntoI = g.Point(pto0EjeXG2.getX()+(tic*escGraf1X),(pto1EjeYG2.getY()-cantidadI*escGraf2Y))
     circuloI = g.Circle(puntoI,3)
     circuloI.setOutline(colorRedI)
     circuloI.setFill(colorRedI)

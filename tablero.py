@@ -1,4 +1,3 @@
-
 def indexing(blocks, squares_x):
     check = []
     objects = len(blocks)
@@ -30,6 +29,3 @@ def cleaning(blocks, squares_x, check, index):
                 del(check[num])
     blocks[index].append(check)
     check = []
-
-
-                
