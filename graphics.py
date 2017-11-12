@@ -243,8 +243,7 @@ class GraphWin(tk.Canvas):
         self.__autoflush()
         
     def plotPixel(self, x, y, color="black"):
-        """Set pixel raw (independent of window coordinates) pixel
-        (x,y) to color"""
+        """Set pixel raw (independent of window coordinates) pixel (x,y) to color"""
         self.__checkOpen()
         self.create_line(x,y,x+1,y, fill=color)
         self.__autoflush()
@@ -255,8 +254,7 @@ class GraphWin(tk.Canvas):
         self.update_idletasks()
         
     def getMouse(self):
-        """Wait for mouse click and return Point object representing
-        the click"""
+        """Wait for mouse click and return Point object representing the click"""
         self.update()      # flush any prior clicks
         self.mouseX = None
         self.mouseY = None
@@ -270,8 +268,7 @@ class GraphWin(tk.Canvas):
         return Point(x,y)
 
     def checkMouse(self):
-        """Return last mouse click or None if mouse has
-        not been clicked since last call"""
+        """Return last mouse click or None if mouse has not been clicked since last call"""
         if self.isClosed():
             raise GraphicsError("checkMouse in closed window")
         self.update()
@@ -403,8 +400,7 @@ class GraphicsObject:
             
     def undraw(self):
 
-        """Undraw the object (i.e. hide it). Returns silently if the
-        object is not currently drawn."""
+        """Undraw the object (i.e. hide it). Returns silently if the object is not currently drawn."""
         
         if not self.canvas: return
         if not self.canvas.isClosed():
@@ -417,8 +413,7 @@ class GraphicsObject:
 
     def move(self, dx, dy):
 
-        """move object dx units in x direction and dy units in y
-        direction"""
+        """move object dx units in x direction and dy units in y direction"""
         
         self._move(dx,dy)
         canvas = self.canvas
@@ -449,8 +444,7 @@ class GraphicsObject:
 
 
     def _draw(self, canvas, options):
-        """draws appropriate figure on canvas with options provided
-        Returns Tk id of item drawn"""
+        """draws appropriate figure on canvas with options provided Returns Tk id of item drawn"""
         pass # must override in subclass
 
 
@@ -802,10 +796,7 @@ class Image(GraphicsObject):
         return self.img.height()
 
     def getPixel(self, x, y):
-        """Returns a list [r,g,b] with the RGB color values for pixel (x,y)
-        r,g,b are in range(256)
-
-        """
+        """Returns a list [r,g,b] with the RGB color values for pixel (x,y) r,g,b are in range(256) """
         
         value = self.img.get(x,y) 
         if type(value) ==  type(0):
@@ -814,17 +805,13 @@ class Image(GraphicsObject):
             return list(map(int, value.split())) 
 
     def setPixel(self, x, y, color):
-        """Sets pixel (x,y) to the given color
-        
-        """
+        """Sets pixel (x,y) to the given color"""
         self.img.put("{" + color +"}", (x, y))
         
 
     def save(self, filename):
         """Saves the pixmap image to filename.
-        The format for the save image is determined from the filname extension.
-
-        """
+        The format for the save image is determined from the filname extension."""
         
         path, name = os.path.split(filename)
         ext = name.split(".")[-1]
